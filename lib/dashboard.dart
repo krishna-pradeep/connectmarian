@@ -8,6 +8,7 @@ import 'package:connectmarian/myads.dart';
 import 'package:connectmarian/wishmaeg.dart';
 import 'package:connectmarian/profilepage.dart';
 import 'package:connectmarian/loginpage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,13 +39,10 @@ class _DashboardPageState extends State<DashboardPage> {
   int _selectedIndex = 0;
   bool _isMenuExpanded = false;
 
-  // Wishlist data
-  List<Map<String, dynamic>> wishlist = [];
-
   // User Statistics
   int totalAdsPosted = 0;
-  int productsSold = 0;
-  int wishlistCount = 0;
+  int totalProducts = 0;
+  int totalDonations = 0;
 
   // Pages for navigation
   late final List<Widget> _pages;
@@ -55,11 +53,11 @@ class _DashboardPageState extends State<DashboardPage> {
     _pages = [
       DashboardContent(
         totalAdsPosted: totalAdsPosted,
-        productsSold: productsSold,
-        wishlistCount: wishlistCount,
+        totalProducts: totalProducts,
+        totalDonations: totalDonations,
       ),
       ProfilePage(),
-      WishlistPage(wishlist: wishlist),
+      WishlistPage(wishlist: []),
       AdsPage(),
     ];
     _fetchUserStats();
@@ -68,25 +66,31 @@ class _DashboardPageState extends State<DashboardPage> {
   Future<void> _fetchUserStats() async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-    // Fetch total ads posted
-    final QuerySnapshot adsSnapshot = await firestore.collection('sell').get();
+    // Fetch total ads posted from the 'advertise' collection with status 'Approved'
+    final QuerySnapshot adsSnapshot = await firestore
+        .collection('advertise')
+        .where('status', isEqualTo: 'Approved')
+        .get();
     setState(() {
       totalAdsPosted = adsSnapshot.docs.length;
     });
 
-    // Fetch products sold
-    final QuerySnapshot soldSnapshot = await firestore
+    // Fetch total products from the 'sell' collection with status 'Approved'
+    final QuerySnapshot sellSnapshot = await firestore
         .collection('sell')
-        .where('status', isEqualTo: 'Sold')
+        .where('status', isEqualTo: 'Approved')
         .get();
     setState(() {
-      productsSold = soldSnapshot.docs.length;
+      totalProducts = sellSnapshot.docs.length;
     });
 
-    // Fetch wishlist count (assuming wishlist is stored in Firestore)
-    final QuerySnapshot wishlistSnapshot = await firestore.collection('wishlist').get();
+    // Fetch total donations from the 'donate' collection with status 'Approved'
+    final QuerySnapshot donateSnapshot = await firestore
+        .collection('donate')
+        .where('status', isEqualTo: 'Approved')
+        .get();
     setState(() {
-      wishlistCount = wishlistSnapshot.docs.length;
+      totalDonations = donateSnapshot.docs.length;
     });
   }
 
@@ -137,7 +141,6 @@ class _DashboardPageState extends State<DashboardPage> {
                           MaterialPageRoute(builder: (context) => ProfilePage()),
                         );
                       }),
-                     
                       _buildNavItem(Icons.add_box, "My Ads", 3, onTap: () {
                         Navigator.push(
                           context,
@@ -162,7 +165,11 @@ class _DashboardPageState extends State<DashboardPage> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: _pages[_selectedIndex],
+              child: DashboardContent(
+                totalAdsPosted: totalAdsPosted,
+                totalProducts: totalProducts,
+                totalDonations: totalDonations,
+              ),
             ),
           ),
         ],
@@ -207,13 +214,13 @@ class _DashboardPageState extends State<DashboardPage> {
 
 class DashboardContent extends StatelessWidget {
   final int totalAdsPosted;
-  final int productsSold;
-  final int wishlistCount;
+  final int totalProducts;
+  final int totalDonations;
 
   DashboardContent({
     required this.totalAdsPosted,
-    required this.productsSold,
-    required this.wishlistCount,
+    required this.totalProducts,
+    required this.totalDonations,
   });
 
   @override
@@ -222,23 +229,26 @@ class DashboardContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Header
-          Row(
-            children: [
-              const CircleAvatar(
-                radius: 40,
-                backgroundImage: AssetImage('images/bird.jpg'),
-              ),
-              const SizedBox(width: 16),
-              Text(
-                "Dashboard",
-                style: GoogleFonts.poppins(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: const Color.fromARGB(255, 183, 28, 28),
+          // Header (Moved slightly upwards)
+          Padding(
+            padding: const EdgeInsets.only(top: 0), // Adjusted top padding
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  radius: 40,
+                  backgroundImage: AssetImage('images/bird.jpg'),
                 ),
-              ),
-            ],
+                const SizedBox(width: 16),
+                Text(
+                  "Dashboard",
+                  style: GoogleFonts.poppins(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 183, 28, 28),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 20),
           // Lottie Animation and Welcome Text
@@ -263,7 +273,7 @@ class DashboardContent extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
           // Stats Row
           Row(
             children: [
@@ -278,18 +288,18 @@ class DashboardContent extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _buildStatCard(
-                  "Products Sold",
-                  "$productsSold",
+                  "Total Products",
+                  "$totalProducts",
                   Icons.sell,
                   Colors.green,
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 15),
               Expanded(
                 child: _buildStatCard(
-                  "Wishlist Items",
-                  "$wishlistCount",
-                  Icons.favorite,
+                  "Total Donation",
+                  "$totalDonations",
+                  Icons.volunteer_activism,
                   Colors.pink,
                 ),
               ),

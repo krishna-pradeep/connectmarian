@@ -4,6 +4,8 @@
 
 import 'package:connectmarian/Loginpage.dart';
 import 'package:connectmarian/Registrationpage.dart';
+import 'package:connectmarian/addfound.dart';
+import 'package:connectmarian/addlost.dart';
 import 'package:connectmarian/adlogin.dart';
 import 'package:connectmarian/adm.dart';
 import 'package:connectmarian/admin.dart';
@@ -13,6 +15,8 @@ import 'package:connectmarian/donate.dart';
 import 'package:connectmarian/firebase_options.dart';
 import 'package:connectmarian/home_screen.dart';
 import 'package:connectmarian/imagepicker.dart';
+import 'package:connectmarian/itemdetail.dart';
+import 'package:connectmarian/lostandfound.dart';
 
 
 import 'package:connectmarian/lostfound.dart';
@@ -45,7 +49,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home:Loginpage(title: 'TS'),
+      home:LostAndFoundScreen(),
     );
   }
 } 

@@ -1,6 +1,7 @@
 import 'package:connectmarian/advertise.dart';
 import 'package:connectmarian/dashboard.dart';
 import 'package:connectmarian/donate.dart';
+import 'package:connectmarian/lostandfound.dart';
 import 'package:connectmarian/sell.dart';
 import 'package:connectmarian/wishmaeg.dart';
 import 'package:flutter/material.dart';
@@ -140,10 +141,17 @@ class _HomePageState extends State<HomePage> {
                   MaterialPageRoute(builder: (context) => DonateProductPage()),
                 );
               }),
+              
               _buildTabButton('+ SELL', () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => SellProductPage()),
+                );
+              }),
+               _buildTabButton('LOST AND FOUND', () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LostAndFoundScreen()),
                 );
               }),
             ],
@@ -530,7 +538,7 @@ class _HomePageState extends State<HomePage> {
                       icon: Icon(Icons.call),
                       label: Text('Call Seller'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: const Color.fromARGB(255, 77, 148, 206),
                       ),
                     ),
                   ],
@@ -1075,7 +1083,7 @@ class ProductDetailsBottomSheet extends StatelessWidget {
               icon: Icon(Icons.call),
               label: Text('Contact Seller'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 199, 40, 40),
+                backgroundColor: const Color.fromARGB(255, 77, 148, 206),
                 padding: EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
